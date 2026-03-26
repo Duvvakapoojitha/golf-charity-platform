@@ -32,12 +32,21 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        seedCharities();
-        seedAdminUser();
+        try {
+            seedCharities();
+            seedAdminUser();
+        } catch (Exception e) {
+            log.error("Data initialization failed: {}", e.getMessage());
+        }
     }
 
     private void seedCharities() {
-        if (charityRepository.count() > 0) return;
+        try {
+            if (charityRepository.count() > 0) return;
+        } catch (Exception e) {
+            log.warn("Could not check charity count, skipping seed: {}", e.getMessage());
+            return;
+        }
 
         log.info("Seeding charities...");
 
@@ -91,7 +100,12 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedAdminUser() {
-        if (userRepository.existsByEmail("admin@golfcharity.com")) return;
+        try {
+            if (userRepository.existsByEmail("admin@golfcharity.com")) return;
+        } catch (Exception e) {
+            log.warn("Could not check admin user, skipping seed: {}", e.getMessage());
+            return;
+        }
 
         log.info("Seeding admin user...");
         Charity firstCharity = charityRepository.findByIsActiveTrue()
